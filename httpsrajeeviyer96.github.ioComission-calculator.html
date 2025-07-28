@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commission Calculator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .calculator-container {
+            background-color: #ffffff;
+            padding: 32px;
+            border-radius: 16px; /* More rounded corners */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Stronger shadow */
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid #e2e8f0; /* Light border */
+        }
+        .input-group label {
+            font-weight: 600;
+            color: #4a5568; /* Darker gray for labels */
+            margin-bottom: 8px;
+            display: block;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e0; /* Lighter border for inputs */
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #2d3748;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #6366f1; /* Indigo focus border */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* Indigo focus shadow */
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px dashed #e2e8f0; /* Dashed separator */
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-item span:first-child {
+            color: #4a5568;
+            font-weight: 500;
+        }
+        .result-item span:last-child {
+            font-weight: 700;
+            color: #2d3748;
+            font-size: 1.1rem;
+        }
+        .calculate-button {
+            background-color: #6366f1; /* Indigo button */
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3); /* Button shadow */
+        }
+        .calculate-button:hover {
+            background-color: #4f46e5; /* Darker indigo on hover */
+            transform: translateY(-1px); /* Slight lift on hover */
+        }
+        .calculate-button:active {
+            transform: translateY(0); /* Press effect */
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Commission Calculator</h1>
+
+        <div class="input-group mb-6">
+            <label for="rguInput" class="mb-2">Number of RGUs:</label>
+            <input type="number" id="rguInput" placeholder="Enter number of RGUs" class="focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+
+        <button id="calculateButton" class="calculate-button w-full mb-8">Calculate Commission</button>
+
+        <div class="results-section">
+            <div class="result-item">
+                <span>Standard Commission:</span>
+                <span id="standardCommission">$0.00</span>
+            </div>
+            <div class="result-item">
+                <span>25% Increase Spiff:</span>
+                <span id="increaseSpiff">$0.00</span>
+            </div>
+            <div class="result-item">
+                <span>$30 Samsung Spiff:</span>
+                <span id="samsungSpiff">$0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const rguInput = document.getElementById('rguInput');
+            const calculateButton = document.getElementById('calculateButton');
+            const standardCommissionSpan = document.getElementById('standardCommission');
+            const increaseSpiffSpan = document.getElementById('increaseSpiff');
+            const samsungSpiffSpan = document.getElementById('samsungSpiff');
+
+            calculateButton.addEventListener('click', calculateCommission);
+            rguInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    calculateCommission();
+                }
+            });
+
+            function calculateCommission() {
+                const numRgus = parseFloat(rguInput.value);
+
+                if (isNaN(numRgus) || numRgus < 0) {
+                    standardCommissionSpan.textContent = '$0.00';
+                    increaseSpiffSpan.textContent = '$0.00';
+                    samsungSpiffSpan.textContent = '$0.00';
+                    // Using a simple alert-like message in the UI instead of window.alert
+                    alertMessage('Please enter a valid positive number for RGUs.', 'error');
+                    return;
+                }
+
+                const rguValue = 65; // $65 MRC per RGU
+                const multiplier = 1.07; // Multiplier for commission
+
+                // Standard Commission calculation
+                const standardCommission = numRgus * rguValue * multiplier;
+
+                // 25% Increase Spiff calculation
+                const increaseSpiff = standardCommission * 0.25;
+
+                // $30 Samsung Spiff calculation (assuming $30 per RGU)
+                const samsungSpiff = numRgus * 30;
+
+                // Update the display
+                standardCommissionSpan.textContent = `$${standardCommission.toFixed(2)}`;
+                increaseSpiffSpan.textContent = `$${increaseSpiff.toFixed(2)}`;
+                samsungSpiffSpan.textContent = `$${samsungSpiff.toFixed(2)}`;
+            }
+
+            // Function to display a temporary message (instead of alert)
+            function alertMessage(message, type) {
+                const existingMessage = document.querySelector('.temp-message');
+                if (existingMessage) {
+                    existingMessage.remove();
+                }
+
+                const messageDiv = document.createElement('div');
+                messageDiv.textContent = message;
+                messageDiv.className = `temp-message p-3 rounded-lg text-sm text-center mt-4 ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+                messageDiv.style.position = 'fixed';
+                messageDiv.style.top = '20px';
+                messageDiv.style.left = '50%';
+                messageDiv.style.transform = 'translateX(-50%)';
+                messageDiv.style.zIndex = '1000';
+                document.body.appendChild(messageDiv);
+
+                setTimeout(() => {
+                    messageDiv.remove();
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
